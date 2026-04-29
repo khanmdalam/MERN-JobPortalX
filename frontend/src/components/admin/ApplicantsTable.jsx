@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { toast } from 'sonner';
 import { APPLICATION_API_END_POINT } from '@/utils/constant';
 import axios from 'axios';
+import { buildCloudinaryDownloadUrl, sanitizeDownloadFileName } from '@/utils/cloudinary';
 
 const shortlistingStatus = ["Accepted", "Rejected"];
 
@@ -49,7 +50,17 @@ const ApplicantsTable = () => {
                                 <TableCell>{item?.applicant?.phoneNumber}</TableCell>
                                 <TableCell >
                                     {
-                                        item.applicant?.profile?.resume ? <a className="text-blue-600 cursor-pointer" href={item?.applicant?.profile?.resume} target="_blank" rel="noopener noreferrer">{item?.applicant?.profile?.resumeOriginalName}</a> : <span>NA</span>
+                                        item.applicant?.profile?.resume ? (
+                                            <a
+                                                className="text-blue-600 cursor-pointer"
+                                                href={buildCloudinaryDownloadUrl(item?.applicant?.profile?.resume)}
+                                                download={sanitizeDownloadFileName(item?.applicant?.profile?.resumeOriginalName)}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                {item?.applicant?.profile?.resumeOriginalName}
+                                            </a>
+                                        ) : <span>NA</span>
                                     }
                                 </TableCell>
                                 <TableCell>{item?.applicant.createdAt.split("T")[0]}</TableCell>

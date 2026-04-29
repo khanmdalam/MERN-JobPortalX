@@ -19,8 +19,8 @@ const Signup = () => {
         email: "",
         phoneNumber: "",
         password: "",
-        role: "",
-        file: ""
+        role: "student",
+        file: null
     });
     const {loading,user} = useSelector(store=>store.auth);
     const dispatch = useDispatch();
@@ -47,6 +47,9 @@ const Signup = () => {
         try {
             dispatch(setLoading(true));
             const res = await axios.post(`${USER_API_END_POINT}/register`, formData, {
+
+          // const res = await axios.post("http://localhost:8000/api/v1/user/register", formData, {
+
                 headers: { 'Content-Type': "multipart/form-data" },
                 withCredentials: true,
             });
@@ -56,7 +59,7 @@ const Signup = () => {
             }
         } catch (error) {
             console.log(error);
-            toast.error(error.response.data.message);
+            toast.error(error.response?.data?.message ?? "Signup failed");
         } finally{
             dispatch(setLoading(false));
         }

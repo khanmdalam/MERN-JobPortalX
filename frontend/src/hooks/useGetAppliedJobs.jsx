@@ -17,6 +17,7 @@ const useGetAppliedJobs = () => {
                 }
             } catch (error) {
                 console.log(error);
+                // Avoid crashing UI when backend is temporarily unavailable.
             }
         }
         fetchAppliedJobs();

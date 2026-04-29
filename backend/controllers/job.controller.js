@@ -1,26 +1,58 @@
 import { Job } from "../models/job.model.js";
 
+const parseExperienceLevel = (value) => {
+    if (value === undefined || value === null) return NaN;
+    const normalized = String(value).trim().toLowerCase();
+    if (!normalized) return NaN;
+    if (normalized === "fresher") return 0;
+
+    const match = normalized.match(/\d+/);
+    return match ? Number(match[0]) : NaN;
+};
+
 // admin post krega job
 export const postJob = async (req, res) => {
     try {
         const { title, description, requirements, salary, location, jobType, experience, position, companyId } = req.body;
         const userId = req.id;
 
-        if (!title || !description || !requirements || !salary || !location || !jobType || !experience || !position || !companyId) {
+        if (
+            !title ||
+            !description ||
+            !requirements ||
+            !salary ||
+            !location ||
+            !jobType ||
+            (experience === undefined || experience === null || String(experience).trim() === "") ||
+            (position === undefined || position === null || String(position).trim() === "") ||
+            !companyId
+        ) {
             return res.status(400).json({
                 message: "Somethin is missing.",
                 success: false
             })
         };
+
+        const experienceLevel = parseExperienceLevel(experience);
+        const salaryValue = Number(salary);
+        const positionValue = Number(position);
+
+        if (Number.isNaN(experienceLevel) || Number.isNaN(salaryValue) || Number.isNaN(positionValue)) {
+            return res.status(400).json({
+                message: "Please enter valid numeric values for salary, position and experience (e.g. fresher, 1, 2 years).",
+                success: false
+            });
+        }
+
         const job = await Job.create({
             title,
             description,
             requirements: requirements.split(","),
-            salary: Number(salary),
-            location,
+            salary: salaryValue,
+            location: String(location).trim(),
             jobType,
-            experienceLevel: experience,
-            position,
+            experienceLevel,
+            position: positionValue,
             company: companyId,
             created_by: userId
         });
@@ -31,6 +63,10 @@ export const postJob = async (req, res) => {
         });
     } catch (error) {
         console.log(error);
+        return res.status(500).json({
+            message: "Server error",
+            success: false
+        });
     }
 }
 // student k liye
@@ -41,6 +77,7 @@ export const getAllJobs = async (req, res) => {
             $or: [
                 { title: { $regex: keyword, $options: "i" } },
                 { description: { $regex: keyword, $options: "i" } },
+                { location: { $regex: keyword, $options: "i" } },
             ]
         };
         const jobs = await Job.find(query).populate({

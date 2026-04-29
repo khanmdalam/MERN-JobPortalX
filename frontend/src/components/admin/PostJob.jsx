@@ -11,8 +11,6 @@ import { toast } from 'sonner'
 import { useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 
-const companyArray = [];
-
 const PostJob = () => {
     const [input, setInput] = useState({
         title: "",
@@ -53,7 +51,7 @@ const PostJob = () => {
                 navigate("/admin/jobs");
             }
         } catch (error) {
-            toast.error(error.response.data.message);
+            toast.error(error.response?.data?.message ?? "Failed to post job");
         } finally{
             setLoading(false);
         }
@@ -62,9 +60,9 @@ const PostJob = () => {
     return (
         <div>
             <Navbar />
-            <div className='flex items-center justify-center w-screen my-5'>
-                <form onSubmit = {submitHandler} className='p-8 max-w-4xl border border-gray-200 shadow-lg rounded-md'>
-                    <div className='grid grid-cols-2 gap-2'>
+            <div className='flex items-center justify-center my-5 px-4 sm:px-6'>
+                <form onSubmit = {submitHandler} className='p-4 sm:p-6 md:p-8 w-full max-w-4xl border border-gray-200 shadow-lg rounded-md'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
                         <div>
                             <Label>Title</Label>
                             <Input
@@ -132,6 +130,7 @@ const PostJob = () => {
                                 name="experience"
                                 value={input.experience}
                                 onChange={changeEventHandler}
+                                placeholder="e.g. fresher, 1, 2 years"
                                 className="focus-visible:ring-offset-0 focus-visible:ring-0 my-1"
                             />
                         </div>
@@ -148,7 +147,7 @@ const PostJob = () => {
                         {
                             companies.length > 0 && (
                                 <Select onValueChange={selectChangeHandler}>
-                                    <SelectTrigger className="w-[180px]">
+                                    <SelectTrigger className="w-full md:w-[220px]">
                                         <SelectValue placeholder="Select a Company" />
                                     </SelectTrigger>
                                     <SelectContent>

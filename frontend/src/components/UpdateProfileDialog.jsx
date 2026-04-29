@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog'
 import { Label } from './ui/label'
 import { Input } from './ui/input'
@@ -19,10 +19,26 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
         email: user?.email || "",
         phoneNumber: user?.phoneNumber || "",
         bio: user?.profile?.bio || "",
-        skills: user?.profile?.skills?.map(skill => skill) || "",
-        file: user?.profile?.resume || ""
+        skills: Array.isArray(user?.profile?.skills)
+            ? user.profile.skills.join(", ")
+            : "",
+        file: null
     });
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (!open || !user) return;
+        setInput({
+            fullname: user.fullname || "",
+            email: user.email || "",
+            phoneNumber: user.phoneNumber || "",
+            bio: user.profile?.bio || "",
+            skills: Array.isArray(user.profile?.skills)
+                ? user.profile.skills.join(", ")
+                : "",
+            file: null,
+        });
+    }, [open, user]);
 
     const changeEventHandler = (e) => {
         setInput({ ...input, [e.target.name]: e.target.value });
@@ -55,15 +71,14 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
             if (res.data.success) {
                 dispatch(setUser(res.data.user));
                 toast.success(res.data.message);
+                setOpen(false);
             }
         } catch (error) {
             console.log(error);
-            toast.error(error.response.data.message);
+            toast.error(error.response?.data?.message ?? "Update failed");
         } finally{
             setLoading(false);
         }
-        setOpen(false);
-        console.log(input);
     }
 
 
@@ -81,7 +96,7 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
                                 <Label htmlFor="name" className="text-right">Name</Label>
                                 <Input
                                     id="name"
-                                    name="name"
+                                    name="fullname"
                                     type="text"
                                     value={input.fullname}
                                     onChange={changeEventHandler}
@@ -103,7 +118,7 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
                                 <Label htmlFor="number" className="text-right">Number</Label>
                                 <Input
                                     id="number"
-                                    name="number"
+                                    name="phoneNumber"
                                     value={input.phoneNumber}
                                     onChange={changeEventHandler}
                                     className="col-span-3"
